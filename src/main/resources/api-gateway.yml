@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 10000
+
+      routes:
+        # USER SERVICE
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/v3/api-docs/user-service, /api/v1/users/**, /api/v1/auth/**
+          filters:
+            - RewritePath=/v3/api-docs/user-service, /v3/api-docs
+
+        # notification service
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/v3/api-docs/notification-service, /api/v1/notifications/**
+          filters:
+            - RewritePath=/v3/api-docs/notification-service, /v3/api-docs
+
+        # workspace service
+        - id: workspace-service
+          uri: lb://workspace-service
+          predicates:
+            - Path=/v3/api-docs/workspace-service
+          filters:
+            - RewritePath=/v3/api-docs/workspace-service, /v3/api-docs
+
+        # document service
+        - id: document-service
+          uri: lb://document-service
+          predicates:
+            - Path=/v3/api-docs/document-service, /api/v1/documents/**
+          filters:
+            - RewritePath=/v3/api-docs/document-service, /v3/api-docs
+
+eureka:
+  client:
+    service-url:
+      defaultZone: https://eureka.jelay.site/eureka/  # Adjust for your Eureka server URL
+
+  instance:
+    prefer-ip-address: true
+
+#SWAGGER
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+
+server:
+  port: 9090
